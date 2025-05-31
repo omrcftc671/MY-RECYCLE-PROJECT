@@ -1,13 +1,12 @@
 import datetime
 
-# Başlangıç değerleri
 birikim = 0
 gecmis = []
 urun_fiyatlari = {
-    "Yağ": 3,
-    "Plastik": 2,
-    "Cam": 1,
-    "Metal": 5
+    "Yağ": 5.0,
+    "Plastik": 0.3,
+    "Kağıt": 0.5,
+    "Metal": 0.8
 }
 
 def menu():
@@ -23,7 +22,7 @@ def menu():
 def urun_menu():
     print("\n1- Yağ")
     print("2- Plastik")
-    print("3- Cam")
+    print("3- Kağıt")
     print("4- Metal")
     print("5- Çıkış")
     secim = input("Seçiminiz: ")
@@ -39,7 +38,7 @@ while True:
         elif urun_secim == "2":
             urun = "Plastik"
         elif urun_secim == "3":
-            urun = "Cam"
+            urun = "Kağıt"
         elif urun_secim == "4":
             urun = "Metal"
         elif urun_secim == "5":
@@ -49,7 +48,7 @@ while True:
             continue
 
         try:
-            miktar = float(input(f"{urun} miktarı: "))
+            miktar = float(input(f"{urun} miktarı (Yağ için litre, diğerleri için adet): "))
             if miktar <= 0:
                 print("Geçersiz tutar!")
                 continue
@@ -61,13 +60,17 @@ while True:
         birikim += eklenen_para
         tarih = datetime.datetime.now().strftime("%d.%m.%Y")
         gecmis.append((urun, miktar, tarih))
+        
+        with open("kayitlar.txt", "a", encoding="utf-8") as f:
+            f.write(f"{urun},{miktar},{tarih}\n")
+
         print("Kayıt yapılmıştır!")
 
     elif secim == "2":
         print("\nÜrünlerin dönüşüm fiyatları:")
         for k, v in urun_fiyatlari.items():
             print(f"{k}: {v} TL")
-        urun_adi = input("Fiyatını değiştirmek istediğiniz ürün adı: ")
+        urun_adi = input("Fiyatını değiştirmek istediğiniz ürün adı: ").capitalize()
         if urun_adi in urun_fiyatlari:
             try:
                 yeni_fiyat = float(input("Yeni fiyatı girin: "))
@@ -82,12 +85,15 @@ while True:
             print("Ürün bulunamadı!")
 
     elif secim == "3":
-        print(f"\nToplam Birikim: {birikim} TL")
+        print(f"\nToplam Birikim: {birikim:.2f} TL")
 
     elif secim == "4":
         print("\nDönüştürme Geçmişi:")
-        for urun, miktar, tarih in gecmis:
-            print(f"{urun}: {miktar} birim - Tarih: {tarih}")
+        if not gecmis:
+            print("Henüz kayıt yok.")
+        else:
+            for urun, miktar, tarih in gecmis:
+                print(f"{urun}: {miktar} birim - Tarih: {tarih}")
 
     elif secim == "5":
         try:
@@ -97,7 +103,7 @@ while True:
                 continue
             if harcama <= birikim:
                 birikim -= harcama
-                print(f"{harcama} TL harcandı. Kalan Birikim: {birikim} TL")
+                print(f"{harcama:.2f} TL harcandı. Kalan Birikim: {birikim:.2f} TL")
             else:
                 print("Yetersiz birikim!")
         except ValueError:
